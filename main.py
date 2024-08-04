@@ -147,7 +147,8 @@ rag_pipe.connect("prompt_builder", "llm")
 
 print("STEP 3 RAG pipeline for retrieving similar products created")
 
-# STEP 4: Create a wrapper function that uses both the query analyzer and RAG pipeline.
+# STEP 4: Create tools for the agent to use.
+# Tool 1 - A wrapper function that uses both the query analyzer and RAG pipeline.
 def product_identifier_func(query: str):
     product_understanding = product_identifier.run({"prompt_builder": {"question": query}})
     # print("product_understanding: ", product_understanding)
@@ -168,7 +169,26 @@ def product_identifier_func(query: str):
     
     return results
 
-# Test
+# Test of first tool use
 query = "I want crossbow and woodstock puzzle"
 #execute function
 print(product_identifier_func(query))
+
+# Tool 2 - Tool which finds the cheapest option.
+
+def find_budget_friendly_option(selected_product_details):
+    budget_friendly_options = {}
+    
+    for category, items in selected_product_details.items():
+        if isinstance(items, list):
+            lowest_price_item = min(items, key=lambda x: x['price'])
+        else:
+            lowest_price_item = items
+        
+        budget_friendly_options[category] = lowest_price_item
+    
+    return budget_friendly_options
+
+# Test second tool
+print("running second tool find_budget_friendly_option: \n")
+print(find_budget_friendly_option(product_identifier_func(query)))
