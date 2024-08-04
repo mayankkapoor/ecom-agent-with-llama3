@@ -7,6 +7,12 @@ Product Retrieval: Retrieves similar products from the indexed database based on
 3. **Tool Functions**: Provides functionalities such as identifying products and finding budget-friendly options.
 4. **Chat Interface**: Uses a chat interface with function calling capabilities to interact with the user and provide recommendations.
 
+# Getting started
+Create a .env file with the following environment variables:
+GROQ_API_KEY=your-groq-api-key
+HF_API_TOKEN=your-hugging-face-api-token
+GROQ_LLM_MODEL=llama3-groq-70b-8192-tool-use-preview
+
 # Detailed explanations
 ## Data Indexing:
 
