@@ -18,7 +18,6 @@ Product Retrieval: Retrieves similar products from the indexed database based on
 - [Configuration](#configuration)
 - [Components](#components)
 - [License](#license)
-- [Acknowledgements](#acknowledgements)
 
 ## Overview
 
