@@ -21,7 +21,7 @@ Product Retrieval: Retrieves similar products from the indexed database based on
 
 ## Overview
 
-The AI Purchase Assistant uses advanced natural language processing and machine learning techniques to understand user queries, search for relevant products, and provide budget-friendly recommendations. The application is built using Python, Gradio, and the Haystack framework, and it integrates with OpenAI's language models for generating responses.
+The AI Purchase Assistant uses Large language models and machine learning techniques to understand user queries, search for relevant products, and provide budget-friendly recommendations. The application is built using Python, Gradio, and the Haystack framework, and it integrates with Llama 3 language models for generating responses.
 
 ## Features
 
