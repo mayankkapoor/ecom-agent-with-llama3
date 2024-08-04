@@ -78,8 +78,7 @@ product_identifier.add_component(
     "llm",
     OpenAIGenerator(api_key=Secret.from_env_var("GROQ_API_KEY"),
                     api_base_url="https://api.groq.com/openai/v1",
-                    # model=os.getenv('GROQ_LLM_MODEL'),
-                    model="llama3-groq-70b-8192-tool-use-preview",
+                    model=os.getenv('GROQ_LLM_MODEL'),
                     generation_kwargs={"max_tokens": 512})
 )
 
@@ -133,8 +132,7 @@ rag_pipe.add_component("prompt_builder", PromptBuilder(template=template))
 rag_pipe.add_component("llm",
                        OpenAIGenerator(api_key=Secret.from_env_var("GROQ_API_KEY"),
                                        api_base_url="https://api.groq.com/openai/v1",
-                                       # model=os.getenv('GROQ_LLM_MODEL'),
-                                       model="llama3-groq-70b-8192-tool-use-preview",
+                                       model=os.getenv('GROQ_LLM_MODEL'),
                                        generation_kwargs={"max_tokens": 512})
                        )
 
