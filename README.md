@@ -9,9 +9,10 @@ Product Retrieval: Retrieves similar products from the indexed database based on
 
 # Getting started
 Create a .env file with the following environment variables:
-GROQ_API_KEY=your-groq-api-key
-HF_API_TOKEN=your-hugging-face-api-token
-GROQ_LLM_MODEL=llama3-groq-70b-8192-tool-use-preview
+
+* GROQ_API_KEY=your-groq-api-key
+* HF_API_TOKEN=your-hugging-face-api-token
+* GROQ_LLM_MODEL=llama3-groq-70b-8192-tool-use-preview
 
 # Detailed explanations
 ## Data Indexing:
