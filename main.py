@@ -1,4 +1,6 @@
 import pandas as pd
+from ast import literal_eval
+from dotenv import load_dotenv
 from haystack import Document, Pipeline
 from haystack.components.builders import PromptBuilder
 from haystack.components.embedders import SentenceTransformersTextEmbedder, SentenceTransformersDocumentEmbedder
@@ -7,6 +9,7 @@ from haystack.components.retrievers import InMemoryEmbeddingRetriever
 from haystack.components.writers import DocumentWriter
 from haystack.document_stores.in_memory import InMemoryDocumentStore
 from haystack.utils import Secret
+import os
 
 # STEP 1: Create an in-memory vector database that stores all your data
 
@@ -75,6 +78,7 @@ product_identifier.add_component(
     "llm",
     OpenAIGenerator(api_key=Secret.from_env_var("GROQ_API_KEY"),
                     api_base_url="https://api.groq.com/openai/v1",
+                    # model=os.getenv('GROQ_LLM_MODEL'),
                     model="llama3-groq-70b-8192-tool-use-preview",
                     generation_kwargs={"max_tokens": 512})
 )
@@ -129,6 +133,7 @@ rag_pipe.add_component("prompt_builder", PromptBuilder(template=template))
 rag_pipe.add_component("llm",
                        OpenAIGenerator(api_key=Secret.from_env_var("GROQ_API_KEY"),
                                        api_base_url="https://api.groq.com/openai/v1",
+                                       # model=os.getenv('GROQ_LLM_MODEL'),
                                        model="llama3-groq-70b-8192-tool-use-preview",
                                        generation_kwargs={"max_tokens": 512})
                        )
@@ -142,4 +147,30 @@ rag_pipe.connect("retriever", "prompt_builder.documents")
 # Connects the output of the PromptBuilder (the formatted prompt) to the input of the LLM.
 rag_pipe.connect("prompt_builder", "llm")
 
-print("STEP 3 RAG for retrieving similar products created")
+print("STEP 3 RAG pipeline for retrieving similar products created")
+
+# STEP 4: Create a wrapper function that uses both the query analyzer and RAG pipeline.
+def product_identifier_func(query: str):
+    product_understanding = product_identifier.run({"prompt_builder": {"question": query}})
+    # print("product_understanding: ", product_understanding)
+
+    try:
+        product_list = literal_eval(product_understanding["llm"]["replies"][0])
+    except:
+        return "Got an exception finding product list. No product found."
+
+    results = {}
+
+    for product in product_list:
+        response = rag_pipe.run({"embedder": {"text": product}, "prompt_builder": {"question": product}})
+        try:
+            results[product] = literal_eval(response["llm"]["replies"][0])
+        except:
+            results[product] = {}
+    
+    return results
+
+# Test
+query = "I want crossbow and woodstock puzzle"
+#execute function
+print(product_identifier_func(query))
