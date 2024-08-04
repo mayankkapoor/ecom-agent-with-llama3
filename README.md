@@ -1,5 +1,8 @@
-# Overview
-This application leverages a Llama 3 powered Retrieval-Augmented Generation (RAG) pipeline to create an AI-powered purchase assistant. The application performs several steps to achieve its functionality:
+# AI Purchase Assistant
+
+Welcome to the AI Purchase Assistant project! This application leverages a Llama 3 powered Retrieval-Augmented Generation (RAG) pipeline to create an AI-powered purchase assistant that helps users find products on Amazon and suggests the most cost-friendly options.
+
+The application performs several steps to achieve its functionality:
 
 1. **Data Indexing**: Reads a CSV file containing Amazon product data and indexes it in an in-memory vector database.
 2. **User Query Analysis**: Analyzes user queries to identify products of interest.
@@ -7,12 +10,61 @@ Product Retrieval: Retrieves similar products from the indexed database based on
 3. **Tool Functions**: Provides functionalities such as identifying products and finding budget-friendly options.
 4. **Chat Interface**: Uses a chat interface with function calling capabilities to interact with the user and provide recommendations.
 
-# Getting started
-Create a .env file with the following environment variables:
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Components](#components)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
 
-* GROQ_API_KEY=your-groq-api-key
-* HF_API_TOKEN=your-hugging-face-api-token
-* GROQ_LLM_MODEL=llama3-groq-70b-8192-tool-use-preview
+## Overview
+
+The AI Purchase Assistant uses advanced natural language processing and machine learning techniques to understand user queries, search for relevant products, and provide budget-friendly recommendations. The application is built using Python, Gradio, and the Haystack framework, and it integrates with OpenAI's language models for generating responses.
+
+## Features
+
+- **Product Search**: Understands user queries and identifies relevant products.
+- **Price Comparison**: Retrieves similar products and compares their prices.
+- **Budget-Friendly Suggestions**: Finds and suggests the most cost-effective products.
+- **Interactive Chat Interface**: Users can interact with the assistant via a web-based chat interface powered by Gradio.
+
+## Installation
+
+### Prerequisites
+
+- Python 3.12 or higher
+- Docker (for containerized development)
+- Access to Groq Llama 3 model
+
+### Steps
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/mayankkapoor/ecom-agent-with-llama3.git
+    cd ecom-agent-with-llama3
+    ```
+2. Set up a virtual environment:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate   # On Windows: venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
+3. Create a .env file in the project root directory and add your OpenAI API key and model 
+    ```bash
+    GROQ_API_KEY=your_groq_api_key
+    HF_API_TOKEN=your_hugging_face_api_token
+    GROQ_LLM_MODEL=llama3-groq-70b-8192-tool-use-preview
+    ```
+4. Run the application:
+    ```bash
+    python main.py
+    ```
+5. Access the web interface:
+    Open your web browser and go to http://localhost:7860 to interact with the AI Purchase Assistant.
+
 
 # Detailed explanations
 ## Data Indexing:
@@ -100,3 +152,6 @@ Implementing rate limiting and input validation to prevent abuse and injection a
 
 # Conclusion
 This RAG pipeline-based LLM agentic application combines various components to create a sophisticated AI-powered purchase assistant. By leveraging document embedding, retrieval, and generation, it provides users with relevant product recommendations and budget-friendly options. The integration with Gradio ensures a smooth and interactive user experience, while the use of environment variables and structured templates maintains flexibility and security.
+
+# License
+This project is licensed under the MIT License. See the LICENSE file for details.
