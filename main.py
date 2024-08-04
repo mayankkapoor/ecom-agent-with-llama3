@@ -1,11 +1,14 @@
 import pandas as pd
 from haystack import Document, Pipeline
 from haystack.components.builders import PromptBuilder
-from haystack.components.embedders import SentenceTransformersDocumentEmbedder
+from haystack.components.embedders import SentenceTransformersTextEmbedder, SentenceTransformersDocumentEmbedder
 from haystack.components.generators import OpenAIGenerator
+from haystack.components.retrievers import InMemoryEmbeddingRetriever
 from haystack.components.writers import DocumentWriter
 from haystack.document_stores.in_memory import InMemoryDocumentStore
 from haystack.utils import Secret
+
+# STEP 1: Create an in-memory vector database that stores all your data
 
 # Read the CSV file into a dataframe with pandas
 df = pd.read_csv("./amazon_product_sample.csv")
@@ -30,7 +33,7 @@ indexing_pipeline = Pipeline()
 # Initialize the embedding model & add it to pipeline
 indexing_pipeline.add_component(instance=SentenceTransformersDocumentEmbedder(
     model="sentence-transformers/all-MiniLM-L6-v2"),
-                                name="doc_embedder")
+    name="doc_embedder")
 print("Embedding model added to pipeline.\n")
 
 # Initialize the Doc Writer & add it to pipeline
@@ -42,10 +45,11 @@ indexing_pipeline.connect("doc_embedder.documents", "doc_writer.documents")
 
 # Run the pipeline with the documents
 indexing_pipeline.run({"doc_embedder": {"documents": documents}})
-print("Documents indexed.\n")
+print("STEP 1 Data indexed & stored.\n")
 
-# Now you have indexed your documents in the in-memory vector database
-# Let's create the first Product Identifier agent/tool which gets the product names from the user's query
+# Now we have indexed our documents in the in-memory vector database
+
+# STEP 2: Create user query analyser & product identifier that returns a python list of products in the user's query
 
 template = """
 Understand the user query and list of products the user is interested in and return product names as list.
@@ -64,14 +68,78 @@ Answer:
 
 product_identifier = Pipeline()
 
-product_identifier.add_component("prompt_builder",
-                                 PromptBuilder(template=template))
+product_identifier.add_component(
+    "prompt_builder", PromptBuilder(template=template))
+
 product_identifier.add_component(
     "llm",
     OpenAIGenerator(api_key=Secret.from_env_var("GROQ_API_KEY"),
                     api_base_url="https://api.groq.com/openai/v1",
                     model="llama3-groq-70b-8192-tool-use-preview",
-                    generation_kwargs={"max_tokens": 512}))
+                    generation_kwargs={"max_tokens": 512})
+)
 
 product_identifier.connect("prompt_builder", "llm")
-print("Product identifier tool added to pipeline.\n")
+print("STEP 2 Product identifier tool added to pipeline.\n")
+
+# STEP 3: Create a RAG pipeline that takes as input a python list of products
+# and returns similar matching products from your vector database
+
+# The template provided below for RAG aims to format the retrieved product
+# information in a structured manner. This template instructs the model to
+# format the output as a Python dictionary or a list of dictionaries with product details.
+
+template = """
+Return product name, price, and url as a python dictionary. 
+You should always return a Python dictionary with keys price, name and url for single product.
+You should always return a Python list of dictionaries with keys price, name and url for multiple products.
+Do not return any explanation.
+
+Legitimate Response Schema:
+{"price": "float", "name": "string", "url": "string"}
+Legitimate Response Schema for multiple products:
+[{"price": "float", "name": "string", "url": "string"},{"price": "float", "name": "string", "url": "string"}]
+
+Context:
+{% for document in documents %}
+    product_price: {{ document.meta['price'] }}
+    product_url: {{ document.meta['url'] }}
+    product_id: {{ document.meta['id'] }}
+    product_name: {{ document.content }}
+{% endfor %}
+Question: {{ question }}
+Answer:
+"""
+
+# Initializes a new pipeline for RAG.
+rag_pipe = Pipeline()
+
+# SentenceTransformersTextEmbedder: This component is responsible for generating embeddings for the text input using the specified model.
+rag_pipe.add_component("embedder", SentenceTransformersTextEmbedder(
+    model="sentence-transformers/all-MiniLM-L6-v2"))
+
+# InMemoryEmbeddingRetriever: This component retrieves the top k similar documents based on the embedding generated. It uses the in-memory document store created earlier.
+rag_pipe.add_component("retriever", InMemoryEmbeddingRetriever(
+    document_store=document_store, top_k=5))
+
+# PromptBuilder: This component formats the context and the question into a prompt that will be sent to the language model.
+rag_pipe.add_component("prompt_builder", PromptBuilder(template=template))
+
+# This component generates the final response using the LLM
+rag_pipe.add_component("llm",
+                       OpenAIGenerator(api_key=Secret.from_env_var("GROQ_API_KEY"),
+                                       api_base_url="https://api.groq.com/openai/v1",
+                                       model="llama3-groq-70b-8192-tool-use-preview",
+                                       generation_kwargs={"max_tokens": 512})
+                       )
+
+# Connects the embedding output of the SentenceTransformersTextEmbedder to the query embedding input of the InMemoryEmbeddingRetriever.
+rag_pipe.connect("embedder.embedding", "retriever.query_embedding")
+
+# Connects the output of the retriever (the documents retrieved) to the input of the PromptBuilder.
+rag_pipe.connect("retriever", "prompt_builder.documents")
+
+# Connects the output of the PromptBuilder (the formatted prompt) to the input of the LLM.
+rag_pipe.connect("prompt_builder", "llm")
+
+print("STEP 3 RAG for retrieving similar products created")
