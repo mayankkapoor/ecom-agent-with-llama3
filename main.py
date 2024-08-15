@@ -1,21 +1,29 @@
-import gradio as gr
+"""
+This module provides a chatbot application for product purchasing assistance.
+It uses the Haystack library for natural language processing and the Gradio library for building the chat interface.
+The chatbot can understand user queries, identify products, and provide product details.
+It also allows users to find the cheapest option among multiple products.
+
+Usage:
+    Run the module to start the chatbot application.
+    Interact with the chatbot by typing messages and clicking the "Send" button.
+"""
+
 import json
 import os
+import gradio as gr
 import pandas as pd
-import pprint
-import re
-from ast import literal_eval
-from dotenv import load_dotenv
 from haystack import Document, Pipeline
 from haystack.components.builders import PromptBuilder
 from haystack.components.embedders import SentenceTransformersTextEmbedder, SentenceTransformersDocumentEmbedder
 from haystack.components.generators import OpenAIGenerator
-from haystack.components.generators.chat import OpenAIChatGenerator
 from haystack.components.retrievers import InMemoryEmbeddingRetriever
 from haystack.components.writers import DocumentWriter
 from haystack.dataclasses import ChatMessage
 from haystack.document_stores.in_memory import InMemoryDocumentStore
 from haystack.utils import Secret
+from dotenv import load_dotenv
+load_dotenv()
 
 # STEP 1: Create an in-memory vector database that stores all your data
 
