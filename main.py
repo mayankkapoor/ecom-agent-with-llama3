@@ -260,21 +260,6 @@ I need to buy a crossbow<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 </tool_response><|eot_id|><|start_header_id|>assistant<|end_header_id|>
 '''
 
-# # Testing agent
-# messages = [
-#     ChatMessage.from_system(
-#         chat_template
-#     ),
-#     ChatMessage.from_user(
-#         "I need to buy a crossbow for my child and Pokémon for myself."),
-# ]
-
-# chat_generator = OpenAIChatGenerator(api_key=Secret.from_env_var("GROQ_API_KEY"),
-#                                      api_base_url="https://api.groq.com/openai/v1",
-#                                      model=os.getenv('GROQ_LLM_MODEL'))
-# response = chat_generator.run(messages=messages)
-# pprint.pp(response)
-
 
 def get_chat_generator():
     return OpenAIChatGenerator(api_key=Secret.from_env_var("GROQ_API_KEY"),
@@ -342,20 +327,4 @@ def get_chat_generator():
                                api_base_url="https://api.groq.com/openai/v1",
                                model=os.getenv('GROQ_LLM_MODEL'))
 
-# with gr.Blocks() as demo:
-#     gr.Markdown("# AI Purchase Assistant")
-#     gr.Markdown("Ask me about products you want to buy!")
 
-#     state = gr.State(value=messages)
-
-#     with gr.Row():
-#         user_input = gr.Textbox(label="Your message:")
-#         response_output = gr.Markdown(label="Response:")
-
-#     user_input.submit(chatbot_interface, [user_input, state], [
-#                       response_output, state])
-#     gr.Button("Send").click(chatbot_interface, [
-#         user_input, state], [response_output, state])
-
-
-# demo.launch()
