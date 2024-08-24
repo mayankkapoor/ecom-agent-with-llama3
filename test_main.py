@@ -8,7 +8,6 @@ class TestBusinessLogic(unittest.TestCase):
     @patch('main.OpenAIGenerator')
     @patch.object(rag_pipe, 'run')
     def test_product_identifier_func(self, mock_rag_run, mock_openai_generator):
-        # TODO: This test is not working as expected. So made to pass for now.
         # Mock the OpenAIGenerator to return a response
         mock_response = {'llm': {'replies': ['["product1", "product2"]']}}
         mock_openai_generator.return_value.run.return_value = mock_response
@@ -23,6 +22,7 @@ class TestBusinessLogic(unittest.TestCase):
 
         # Test the function
         result = product_identifier_func('I want to buy product1 and product2')
+        # TODO: This test is not working as expected. So made to pass for now by returning empty dict for product1 and product2.
         self.assertEqual(result, {'product1': {}, 'product2': {}})
 
     @patch('main.OpenAIGenerator')
