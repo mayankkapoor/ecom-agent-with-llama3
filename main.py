@@ -17,6 +17,9 @@ from haystack.dataclasses import ChatMessage
 from haystack.document_stores.in_memory import InMemoryDocumentStore
 from haystack.utils import Secret
 
+# Load environment variables from .env file
+load_dotenv()
+
 # STEP 1: Create an in-memory vector database that stores all your data
 
 # Read the CSV file into a dataframe with pandas
@@ -334,21 +337,25 @@ def chatbot_interface(user_input, state):
     response_content = chatbot_with_fc(user_input, state)
     return response_content, state
 
+def get_chat_generator():
+    return OpenAIChatGenerator(api_key=Secret.from_env_var("GROQ_API_KEY"),
+                               api_base_url="https://api.groq.com/openai/v1",
+                               model=os.getenv('GROQ_LLM_MODEL'))
 
-with gr.Blocks() as demo:
-    gr.Markdown("# AI Purchase Assistant")
-    gr.Markdown("Ask me about products you want to buy!")
+# with gr.Blocks() as demo:
+#     gr.Markdown("# AI Purchase Assistant")
+#     gr.Markdown("Ask me about products you want to buy!")
 
-    state = gr.State(value=messages)
+#     state = gr.State(value=messages)
 
-    with gr.Row():
-        user_input = gr.Textbox(label="Your message:")
-        response_output = gr.Markdown(label="Response:")
+#     with gr.Row():
+#         user_input = gr.Textbox(label="Your message:")
+#         response_output = gr.Markdown(label="Response:")
 
-    user_input.submit(chatbot_interface, [user_input, state], [
-                      response_output, state])
-    gr.Button("Send").click(chatbot_interface, [
-        user_input, state], [response_output, state])
+#     user_input.submit(chatbot_interface, [user_input, state], [
+#                       response_output, state])
+#     gr.Button("Send").click(chatbot_interface, [
+#         user_input, state], [response_output, state])
 
 
-demo.launch()
+# demo.launch()
