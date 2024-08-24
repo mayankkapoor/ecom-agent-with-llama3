@@ -3,12 +3,6 @@ import unittest
 from unittest.mock import patch, MagicMock
 from main import product_identifier_func, find_budget_friendly_option, rag_pipe
 
-# import os
-# from dotenv import load_dotenv
-
-# # Load environment variables from .env file
-# load_dotenv()
-
 class TestBusinessLogic(unittest.TestCase):
 
     @patch('main.OpenAIGenerator')
